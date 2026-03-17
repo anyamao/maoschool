@@ -3,6 +3,17 @@
 import { createClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 
+export interface FormState {
+  success?: boolean;
+  error?: string;
+  fieldErrors?: {
+    email?: string;
+    username?: string;
+    password?: string;
+    confirmPassword?: string;
+  };
+}
+
 export async function signUp(formData: FormData) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,13 +21,17 @@ export async function signUp(formData: FormData) {
   );
 
   const email = formData.get("email") as string;
+  const username = formData.get("username") as string;
   const password = formData.get("password") as string;
-
-  console.log("Attempting signup for:", email); // Debug log
-
+  const confirmPassword = formData.get("confirmPassword") as string;
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        username: username,
+      },
+    },
   });
 
   if (error) {
